@@ -1,0 +1,26 @@
+{
+  "name": "audio-driven-time-control",
+  "version": "0.0.0",
+  "description": "(work in progress)",
+  "main": "scripts/js/lib/AudioDrivenTimeControl.js",
+  "scripts": {
+    "prepublish": "node ./node_modules/coffee-script/bin/cake build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AriaMinaei/audio-driven-time-control.git"
+  },
+  "keywords": [],
+  "author": "Aria Minaei",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AriaMinaei/audio-driven-time-control/issues"
+  },
+  "dependencies": {
+    "mp3-parser": "~0.1.13"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.6.3",
+    "little-popo": "*"
+  }
+}
