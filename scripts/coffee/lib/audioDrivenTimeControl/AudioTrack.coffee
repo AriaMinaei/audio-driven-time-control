@@ -11,7 +11,7 @@ module.exports = class AudioTrack
 
 		@duration = 0.0
 
-		for chunkData in @dataHandler.split 1, 20
+		for chunkData in @dataHandler.split 2, 3
 
 			@_chunks.push chunk = new TrackChunk @, chunkData
 
@@ -25,7 +25,7 @@ module.exports = class AudioTrack
 
 		@_queuedChunks = []
 
-		@_secondsToQueueTrackInAdvance = 0.1
+		@_secondsToQueueTrackInAdvance = 1
 
 	loadFull: ->
 

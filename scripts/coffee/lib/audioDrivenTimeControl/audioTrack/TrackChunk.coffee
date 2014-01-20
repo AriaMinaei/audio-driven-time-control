@@ -12,9 +12,9 @@ module.exports = class TrackChunk
 
 		@to = @data.to
 
-		@duration = @data.duration
+		@duration = @data.duration - 0.00099
 
-		@_skipInS = @data.skipInS | 0.0
+		@_skipInS = @data.skipInS || 0.0
 
 		@queued = no
 
@@ -27,6 +27,8 @@ module.exports = class TrackChunk
 	_makeNewSource: ->
 
 		@_currentSource = @context.createBufferSource()
+
+		window.d = @data.decodedBuffer
 
 		@_currentSource.buffer = @data.decodedBuffer
 
@@ -48,13 +50,12 @@ module.exports = class TrackChunk
 
 		localT = @_toLocalT trackT
 
-		console.log 'queueing', @from
-
 		offset = @_skipInS
 
 		if localT > 0
 
 			offset += localT
+		console.log 'queueing', @from, 'offset', offset
 
 		@_makeNewSource().start @context.currentTime - localT, offset
 
