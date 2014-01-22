@@ -102,6 +102,8 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 
 			@_readyDeferred = wn.defer()
 
+			@_emit 'ready-state-change'
+
 	# if all players doing an update are done, we can resolve
 	# our promise on the ready() call
 	_getReadyIfNecessary: ->
@@ -113,6 +115,8 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 			@_isReady = yes
 
 			@_readyDeferred.resolve()
+
+			@_emit 'ready-state-change'
 
 	# resolves when all players are ready to be played
 	ready: ->
@@ -297,12 +301,12 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 
 				return
 
-		# we're playing, so emit a pause
-		@_emit 'pause'
-
 		do @_unqueueAllPlayers
 
 		@_isPlaying = no
+
+		# we're playing, so emit a pause
+		@_emit 'pause'
 
 		return
 
