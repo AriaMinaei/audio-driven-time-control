@@ -1,110 +1,203 @@
+wn = require 'when'
 array = require 'utila/scripts/js/lib/array'
+TrackPlayer = require './audioDrivenTimeControl/TrackPlayer'
+CachedTrack = require './CachedTrack'
+_Emitter = require './_Emitter'
+Context = window.AudioContext || window.webkitAudioContext
 
-module.exports = class AudioDrivenTimeControl
+module.exports = class AudioDrivenTimeControl extends _Emitter
 
-	constructor: (@context, destination = @context.destination) ->
+	constructor: (destination = new Context) ->
+
+		# the emitter
+		super
+
+		# setup the audio stuff
+		if destination.context?
+
+			@context = destination.context
+
+		else
+
+			@context = destination
+
+			destination = @context.destination
 
 		@node = @context.createGain()
 
 		@node.connect destination
 
-		@_isPlaying = no
-
-		@_waitBeforePlay = 0.016
-
+		# current time in milliseconds
 		@t = 0.0
 
 		@duration = 0.0
 
-		@_tracks = []
+		@_requestedDuration = 0.0
 
-		@_queuedTracks = []
+		@_waitBeforePlay = 16.0
 
-		@_lastContextTime = 0
+		@_prescheduleFor = 1000.0
 
-	addTrack: (data, from = 0.0) ->
+		# track players
+		@_players = []
 
-		track = new AudioTrack @, data, from
+		# stuff for ready() and isReady() methods
+		@_playersLeftToUpdate = 0
 
-		@maximizeDuration from + track.duration
+		@_isReady = yes
 
-		@_tracks.push track
+		@_readyDeferred = wn.defer()
 
-		@
+		@_readyDeferred.resolve()
 
-	maximizeDuration: (duration) ->
+		# playback stuff
+		@_isPlaying = no
 
-		@duration = Math.max @duration, duration
+		@_scheduledToPlay = no
 
-	loadFull: ->
+		@_queuedPlayers = []
 
-		lastPromise = null
+		@_lastWindowTime = 0.0
 
-		for t in @_tracks
+	add: (track, from = 0.0) ->
 
-			unless lastPromise?
+		if typeof track is 'string'
 
-				lastPromise = t.loadFull()
+			track = new CachedTrack @context, track
 
-			else
+		player = new TrackPlayer @, track, from
 
-				do (t) -> lastPromise.then => t.loadFull()
+		@_players.push player
 
-		lastPromise
+		player
 
-	_unqueueAllTracks: ->
+	# this is called whenever a player might have to load something,
+	# or change its properties
+	_waitForUpdate: (whenPlayerIsDonwWithUpdating) ->
+
+		# pause the playback if necessary
+		do @pause
+
+		# the next ready() call might need a new promise
+		do @_scheduleToGetReady
+
+		@_playersLeftToUpdate++
+
+		wn(whenPlayerIsDonwWithUpdating).then =>
+
+			@_playersLeftToUpdate--
+
+			do @_getReadyIfNecessary
+
+			return
+
+	# put a new promise for the ready() call
+	_scheduleToGetReady: ->
+
+		# only update the promise if this is called after the first
+		# player that has requested a wait-for-an-update.
+		if @_playersLeftToUpdate is 0
+
+			@_isReady = no
+
+			@_readyDeferred = wn.defer()
+
+	# if all players doing an update are done, we can resolve
+	# our promise on the ready() call
+	_getReadyIfNecessary: ->
+
+		if @_playersLeftToUpdate is 0
+
+			do @_updateEverything
+
+			@_isReady = yes
+
+			@_readyDeferred.resolve()
+
+	# resolves when all players are ready to be played
+	ready: ->
+
+		@_readyDeferred.promise
+
+	# is ready to play
+	isReady: ->
+
+		@_isReady
+
+	# maximize's the timeline's duration based on the arbitrary
+	# value provided from maximizeDuration() or the length of the
+	# audio timeline
+	_updateDuration: ->
+
+		newDuration = Math.max @_requestedDuration, @duration
+
+		if newDuration isnt @duration
+
+			@duration = newDuration
+
+			@_emit 'duration-change'
+
+	# updates everything, if there is a change in the timeline
+	_updateEverything: ->
+
+		@_players.sort (b, a) ->
+
+			b.from > a.from
+
+		tracksDuration = 0.0
+
+		for player in @_players
+
+			tracksDuration = Math.max tracksDuration, player.to
+
+		@duration = tracksDuration
+
+		do @_updateDuration
+
+	# unqeueue all players if we must pause
+	_unqueueAllPlayers: ->
 
 		loop
 
-			track = @_queuedTracks.pop()
+			player = @_queuedPlayers.pop()
 
-			break unless track?
+			break unless player?
 
-			track.unqueue()
-
-		return
-
-	_unqueueTrack: (track) ->
-
-		array.pluckOneItem @_queuedTracks, track
+			player._unqueue()
 
 		return
 
-	_queueTracksToPlay: ->
+	_queuePlayersToPlay: ->
 
-		for track in @_tracks
+		for player in @_players
 
-			continue if track in @_queuedTracks
+			continue if player in @_queuedPlayers
 
-			break if track.from - @_secondsToScheduleTrackInAdvance > @t
+			break if player.from - @_prescheduleFor > @t
 
-			continue if track.to < @t
+			continue if player.to < @t
 
-			track.queue @t
+			player._queue @t
 
-			@_queuedTracks.push track
+			@_queuedPlayers.push player
 
 		return
 
-	tick: (t) ->
+	tick: ->
 
 		return unless @_isPlaying
 
-		contextTime = @context.currentTime
+		currentWindowTime = performance.now()
 
-		@t += contextTime - @_lastContextTime
+		@t += currentWindowTime - @_lastWindowTime
 
-		@_lastContextTime = contextTime
-
-		# accurateTime = performance.now() / 1000.0
-
-		# @t = @t + accurateTime - @_lastAccurateTime
-
-		# @_lastAccurateTime = accurateTime
+		@_lastWindowTime = currentWindowTime
 
 		if @t > @duration
 
 			do @pause
+
+			@seekTo 0.0
 
 			return
 
@@ -112,46 +205,135 @@ module.exports = class AudioDrivenTimeControl
 
 		loop
 
-			track = @_queuedTracks[i]
+			player = @_queuedPlayers[i]
 
-			break unless track?
+			break unless player?
 
-			if track.shouldUnqueue @t
+			if player._shouldUnqueue @t
 
-				track.unqueue()
+				player._unqueue()
 
-				@_queuedTracks.shift()
+				@_queuedPlayers.shift()
 
 			else
 
 				i++
 
-		do @_queueTracksToPlay
+		do @_queuePlayersToPlay
+
+		@_emit 'tick', @t
 
 		return
 
+	# this is to set an arbitrary duration for the timeline,
+	# but if it's smaller than the audio tracks` duration,
+	# it won't affect the timeline's duration
+	maximizeDuration: (duration) ->
+
+		@_requestedDuration = +duration
+
+		do @_updateDuration
+
 	play: ->
 
-		return if @_isPlaying
+		return if @_isPlaying or @_scheduledToPlay
 
-		@_lastContextTime = @context.currentTime
+		# if we're ready...
+		if @_isReady
 
-		# @_lastAccurateTime = performance.now() / 1000.0
+			# ... just play
+			do @_play
+
+			return
+
+		# we're not ready, so remember that we are scheduled to play
+		@_scheduledToPlay = yes
+
+		# we can emit an event too, so that UI can react to
+		# the schedule to play
+		@_emit 'scheduled-to-play'
+
+		# now, wait to get ready...
+		@ready().then =>
+
+			# ... and if our schedule to play is not cancelled...
+			if @_scheduledToPlay
+
+				@_scheduledToPlay = no
+
+				# ... play!
+				do @_play
+
+		return
+
+	_play: ->
+
+		return if @t > @duration
+
+		@_emit 'play'
+
+		@_lastWindowTime = performance.now()
 
 		@t -= @_waitBeforePlay
 
-		do @_queueTracksToPlay
+		do @_queuePlayersToPlay
 
 		@_isPlaying = yes
 
 	pause: ->
 
+		# if we're not playing...
 		unless @_isPlaying
 
-			throw Error "Already paused"
+			# ... and we're scheduled to play,
+			if @_scheduledToPlay
 
-		do @_unqueueAllTracks
+				# just cancel the schedule
+				@_scheduledToPlay = no
+
+				@_emit 'pause'
+
+				return
+
+		# we're playing, so emit a pause
+		@_emit 'pause'
+
+		do @_unqueueAllPlayers
 
 		@_isPlaying = no
 
-		console.log 'pausing'
+		return
+
+	togglePlay: ->
+
+		if @_isPlaying
+
+			do @pause
+
+		else
+
+			do @play
+
+	seekTo: (t) ->
+
+		if @_isPlaying
+
+			wasPlaying = yes
+
+			do @pause
+
+		if t > @duration then t = @duration
+
+		if t < 0 then t = 0.0
+
+		@_emit 'tick', @t = t
+
+		if wasPlaying
+
+			do @play
+
+		return
+
+	seek: (amount) ->
+
+		@seekTo @t + amount

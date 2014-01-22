@@ -35,24 +35,17 @@ module.exports = class CachedTrack
 
 			if isCached
 
-				console.log 'cached'
+				# console.log 'cached'
 
 				@_getAudioFromCache().then(@_getReady)
 
 			else
 
-				console.log 'not cached'
+				# console.log 'not cached'
 
 				@_loadByXhr().then(@_decode).then(@_getReady).then(@_cache)
 
 	_getReady: (@audioData) =>
-
-		s = @context.createBufferSource()
-		# s.buffer = @audioData
-
-		# s.connect @context.destination
-
-		# s.start 0
 
 	_getAudioFromCache: ->
 
@@ -120,11 +113,11 @@ module.exports = class CachedTrack
 
 		req.responseType = 'arraybuffer'
 
-		console.time 'xhr'
+		# console.time 'xhr'
 
 		req.addEventListener 'load', (e) ->
 
-			console.timeEnd 'xhr'
+			# console.timeEnd 'xhr'
 
 			d.resolve req.response
 
@@ -138,11 +131,11 @@ module.exports = class CachedTrack
 
 		d = wn.defer()
 
-		console.time 'decode'
+		# console.time 'decode'
 
 		@context.decodeAudioData encodedBuffer, (audioData) ->
 
-			console.timeEnd 'decode'
+			# console.timeEnd 'decode'
 
 			d.resolve audioData
 
