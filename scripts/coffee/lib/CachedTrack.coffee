@@ -5,9 +5,13 @@ module.exports = class CachedTrack
 
 	self = @
 
-	constructor: (@context, @addr) ->
+	constructor: (@context, @addr, @namespace = 'audio') ->
 
-		@_addrInFs = 'track-' + @addr.replace /([\/\\]+|\.\.)/g, '--'
+		ns = self._normalizeFileName @namespace
+
+		@_addrInFs = ns + '--sampleRate-' + @context.sampleRate +
+
+			'--' + 'track-' + self._normalizeFileName(@addr)
 
 		@_infoAddrInFs = @_addrInFs + '-info'
 
@@ -214,6 +218,12 @@ module.exports = class CachedTrack
 		blob = new Blob [info], type: 'text/plain'
 
 		self._overwriteFile fs, @_infoAddrInFs, blob
+
+	@_normalizeFileName: (name) ->
+
+		name
+		.replace(/[\.]{2,}/g, '--')
+		.replace /[^a-zA-Z0-9\_\-\s\.]+/g, '-'
 
 	@_readAsText: (file) ->
 

@@ -7,7 +7,7 @@ Context = window.AudioContext || window.webkitAudioContext
 
 module.exports = class AudioDrivenTimeControl extends _Emitter
 
-	constructor: (destination = new Context) ->
+	constructor: (destination = new Context, @id = 'audio') ->
 
 		# the emitter
 		super
@@ -63,7 +63,7 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 
 		if typeof track is 'string'
 
-			track = new CachedTrack @context, track
+			track = new CachedTrack @context, track, @id
 
 		player = new TrackPlayer @, track, from
 
@@ -183,6 +183,8 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 
 		return
 
+	# tick must be called by requestAnimationFrame or something similar
+	# byt the user
 	tick: ->
 
 		return unless @_isPlaying
@@ -303,6 +305,10 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 		@_isPlaying = no
 
 		return
+
+	isPlaying: ->
+
+		@_isPlaying
 
 	togglePlay: ->
 
