@@ -1,7 +1,7 @@
 wn = require 'when'
 {call} = require 'when/callbacks'
 
-module.exports = class CachedAudio
+module.exports = class CachedTrack
 
 	self = @
 
@@ -48,11 +48,11 @@ module.exports = class CachedAudio
 	_getReady: (@audioData) =>
 
 		s = @context.createBufferSource()
-		s.buffer = @audioData
+		# s.buffer = @audioData
 
-		s.connect @context.destination
+		# s.connect @context.destination
 
-		s.start 0
+		# s.start 0
 
 	_getAudioFromCache: ->
 

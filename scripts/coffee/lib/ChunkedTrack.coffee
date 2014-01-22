@@ -1,7 +1,7 @@
 wn = require 'when'
-TrackChunk = require './audioTrack/TrackChunk'
+Chunk = require './chunkedTrack/Chunk'
 
-module.exports = class AudioTrack
+module.exports = class ChunkedTrack
 
 	constructor: (@timeControl, @dataHandler, @from) ->
 
@@ -13,7 +13,7 @@ module.exports = class AudioTrack
 
 		for chunkData in @dataHandler.split 2, 3
 
-			@_chunks.push chunk = new TrackChunk @, chunkData
+			@_chunks.push chunk = new Chunk @, chunkData
 
 			@duration += chunk.duration
 

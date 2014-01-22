@@ -1,10 +1,10 @@
 wn = require 'when'
 
-module.exports = class TrackChunk
+module.exports = class Chunk
 
-	constructor: (@audioTrack, data) ->
+	constructor: (@track, data) ->
 
-		@context = @audioTrack.context
+		@context = @track.context
 
 		@data = data.forContext @context
 
@@ -32,7 +32,7 @@ module.exports = class TrackChunk
 
 		@_currentSource.buffer = @data.decodedBuffer
 
-		@_currentSource.connect @audioTrack.timeControl.node
+		@_currentSource.connect @track.timeControl.node
 
 		@_currentSource
 

@@ -1,4 +1,3 @@
-AudioTrack = require './audioDrivenTimeControl/AudioTrack'
 array = require 'utila/scripts/js/lib/array'
 
 module.exports = class AudioDrivenTimeControl
@@ -52,8 +51,6 @@ module.exports = class AudioDrivenTimeControl
 				do (t) -> lastPromise.then => t.loadFull()
 
 		lastPromise
-
-
 
 	_unqueueAllTracks: ->
 
