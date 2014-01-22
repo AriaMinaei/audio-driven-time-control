@@ -272,8 +272,6 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 
 		return if @t > @duration
 
-		@_emit 'play'
-
 		@_lastWindowTime = performance.now()
 
 		@t -= @_waitBeforePlay
@@ -281,6 +279,8 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 		do @_queuePlayersToPlay
 
 		@_isPlaying = yes
+
+		@_emit 'play'
 
 	pause: ->
 
@@ -309,6 +309,17 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 	isPlaying: ->
 
 		@_isPlaying
+
+	getPlayState: ->
+
+		# playing
+		return 1 if @_isPlaying
+
+		# scheduled to play
+		return 2 if @_scheduledToPlay
+
+		# paused
+		return 0
 
 	togglePlay: ->
 
