@@ -32,6 +32,8 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 
 		@duration = 0.0
 
+		@_tracksDuration = 0.0
+
 		@_requestedDuration = 0.0
 
 		@_waitBeforePlay = 16.0
@@ -133,7 +135,7 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 	# audio timeline
 	_updateDuration: ->
 
-		newDuration = Math.max @_requestedDuration, @duration
+		newDuration = Math.max @_requestedDuration, @_tracksDuration
 
 		if newDuration isnt @duration
 
@@ -154,7 +156,7 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 
 			tracksDuration = Math.max tracksDuration, player.to
 
-		@duration = tracksDuration
+		@_tracksDuration = tracksDuration
 
 		do @_updateDuration
 
@@ -236,7 +238,7 @@ module.exports = class AudioDrivenTimeControl extends _Emitter
 	# it won't affect the timeline's duration
 	maximizeDuration: (duration) ->
 
-		@_requestedDuration = +duration
+		@_requestedDuration = duration
 
 		do @_updateDuration
 

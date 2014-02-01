@@ -213,7 +213,7 @@ module.exports = class CachedTrack
 
 		info = JSON.stringify info
 
-		console.log 'info', info
+		# console.log 'info', info
 
 		blob = new Blob [info], type: 'text/plain'
 
@@ -334,4 +334,4 @@ module.exports = class CachedTrack
 			self._writeToFile file, blob
 
 Storage = navigator.PersistentStorage || navigator.webkitPersistentStorage
-requestFileSystem = requestFileSystem || webkitRequestFileSystem
+requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem
