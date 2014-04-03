@@ -32,6 +32,8 @@ module.exports = class TrackPlayer
 
 		@from = parseFloat from
 
+		@to = @from + @duration
+
 		@timeControl._waitForUpdate null
 
 		@

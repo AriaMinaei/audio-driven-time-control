@@ -26,7 +26,7 @@ module.exports = class CachedTrack
 		.then (fs) =>
 
 			self
-			._getFile(fs.root, @_infoAddrInFs)
+			._getFile fs.root, @_infoAddrInFs
 			.then (->yes), (->no)
 
 	load: ->
@@ -39,13 +39,9 @@ module.exports = class CachedTrack
 
 			if isCached
 
-				# console.log 'cached'
-
 				@_getAudioFromCache().then(@_getReady)
 
 			else
-
-				# console.log 'not cached'
 
 				@_loadByXhr().then(@_decode).then(@_getReady).then(@_cache)
 
@@ -117,15 +113,9 @@ module.exports = class CachedTrack
 
 		req.responseType = 'arraybuffer'
 
-		# console.time 'xhr'
-
 		req.addEventListener 'load', (e) ->
 
-			# console.timeEnd 'xhr'
-
 			d.resolve req.response
-
-			return
 
 		req.send()
 
@@ -135,11 +125,7 @@ module.exports = class CachedTrack
 
 		d = wn.defer()
 
-		# console.time 'decode'
-
 		@context.decodeAudioData encodedBuffer, (audioData) ->
-
-			# console.timeEnd 'decode'
 
 			d.resolve audioData
 
@@ -212,8 +198,6 @@ module.exports = class CachedTrack
 			offset += channel.byteLength
 
 		info = JSON.stringify info
-
-		# console.log 'info', info
 
 		blob = new Blob [info], type: 'text/plain'
 
