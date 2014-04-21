@@ -99,3 +99,11 @@ module.exports = class AudioTagPlayer
 	_toLocalT: (t) ->
 
 		t - @from
+
+	mute: ->
+
+		@_el.volume = 0
+
+	unmute: ->
+
+		@_el.volume = 1

@@ -23,7 +23,7 @@ module.exports = class UnfancyAudioDrivenTimeControl extends _Emitter
 
 		@_waitBeforePlay = 16.0
 
-		@_prescheduleFor = 1000.0
+		@_prescheduleFor = 0.0
 
 		# track players
 		@_players = []
@@ -45,6 +45,8 @@ module.exports = class UnfancyAudioDrivenTimeControl extends _Emitter
 		@_queuedPlayers = []
 
 		@_lastWindowTime = 0.0
+
+		@_isMuted = no
 
 	add: (address, from = 0.0) ->
 
@@ -341,3 +343,33 @@ module.exports = class UnfancyAudioDrivenTimeControl extends _Emitter
 	seek: (amount) ->
 
 		@seekTo @t + amount
+
+	mute: ->
+
+		return if @_isMuted
+
+		player.mute() for player in @_players
+
+		@_isMuted = yes
+
+		@_emit 'mute'
+		@_emit 'mute-state-change'
+
+	unmute: ->
+
+		return unless @_isMuted
+
+		player.unmute() for player in @_players
+
+		@_isMuted = no
+
+		@_emit 'unmute'
+		@_emit 'mute-state-change'
+
+	isMuted: ->
+
+		@_isMuted
+
+	toggleMuteState: ->
+
+		if @_isMuted then @unmute() else @mute()
