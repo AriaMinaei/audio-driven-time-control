@@ -18,7 +18,7 @@ module.exports = class AudioTagPlayer
 
 		@to = 0.0
 
-		@_currentPlayTimeout = -1
+		# @_currentPlayTimeout = -1
 
 	_ready: =>
 
@@ -68,27 +68,27 @@ module.exports = class AudioTagPlayer
 
 			@_el.currentTime = 0
 
-			@_currentPlayTimeout = setTimeout =>
+			# @_currentPlayTimeout = setTimeout =>
 
-				@_el.play()
+			@_el.play()
 
-				@_currentPlayTimeout = -1
+				# @_currentPlayTimeout = -1
 
-			, - localT
+			# , - localT
 
 		return
 
 	_unqueue: ->
 
-		if @_currentPlayTimeout isnt -1
+		# if @_currentPlayTimeout isnt -1
 
-			clearTimeout @_currentPlayTimeout
+		# 	clearTimeout @_currentPlayTimeout
 
-			@_currentPlayTimeout = -1
+		# 	@_currentPlayTimeout = -1
 
-		else
+		# else
 
-			@_el.pause()
+		@_el.pause()
 
 		return
 
