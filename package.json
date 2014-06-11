@@ -2,7 +2,7 @@
   "name": "audio-driven-time-control",
   "version": "0.1.0-beta.6",
   "description": "(work in progress)",
-  "main": "scripts/js/lib/AudioDrivenTimeControl.js",
+  "main": "",
   "scripts": {
     "prepublish": "node ./node_modules/coffee-script/bin/cake build"
   },

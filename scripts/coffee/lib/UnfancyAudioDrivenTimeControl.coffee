@@ -1,11 +1,9 @@
 wn = require 'when'
 array = require 'utila/scripts/js/lib/array'
-_Emitter = require './_Emitter'
+Emitter = require 'utila/scripts/js/lib/Emitter'
 AudioTagPlayer = require './unfancyAudioDrivenTimeControl/AudioTagPlayer'
 
-# This is less precise than AudioDrivenTimeControl, but works
-# everywhere.
-module.exports = class UnfancyAudioDrivenTimeControl extends _Emitter
+module.exports = class UnfancyAudioDrivenTimeControl extends Emitter
 
 	constructor: (@id = 'audio') ->
 

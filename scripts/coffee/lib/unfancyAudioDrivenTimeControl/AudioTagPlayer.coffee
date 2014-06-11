@@ -18,8 +18,6 @@ module.exports = class AudioTagPlayer
 
 		@to = 0.0
 
-		# @_currentPlayTimeout = -1
-
 	_ready: =>
 
 		d = wn.defer()
@@ -68,25 +66,11 @@ module.exports = class AudioTagPlayer
 
 			@_el.currentTime = 0
 
-			# @_currentPlayTimeout = setTimeout =>
-
 			@_el.play()
-
-				# @_currentPlayTimeout = -1
-
-			# , - localT
 
 		return
 
 	_unqueue: ->
-
-		# if @_currentPlayTimeout isnt -1
-
-		# 	clearTimeout @_currentPlayTimeout
-
-		# 	@_currentPlayTimeout = -1
-
-		# else
 
 		@_el.pause()
 
