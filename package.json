@@ -4,7 +4,7 @@
   "description": "(work in progress)",
   "main": "",
   "scripts": {
-    "prepublish": "node ./node_modules/coffee-script/bin/cake build"
+    "prepublish": "coffee --bare --compile --output ./lib ./src"
   },
   "repository": {
     "type": "git",

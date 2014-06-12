@@ -1,9 +1,9 @@
 wn = require 'when'
 array = require 'utila/scripts/js/lib/array'
 Emitter = require 'utila/scripts/js/lib/Emitter'
-AudioTagPlayer = require './unfancyAudioDrivenTimeControl/AudioTagPlayer'
+AudioTagPlayer = require './multiTrack/AudioTagPlayer'
 
-module.exports = class UnfancyAudioDrivenTimeControl extends Emitter
+module.exports = class MultiTrack extends Emitter
 
 	constructor: (@id = 'audio') ->
 
