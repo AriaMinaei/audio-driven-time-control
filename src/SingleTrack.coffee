@@ -124,3 +124,11 @@ module.exports = class SingleTrack extends Emitter
 		@_el.pause()
 
 		return
+
+	mute: ->
+
+		@_el?.volume = 0
+
+	unmute: ->
+
+		@_el?.volume = 1
