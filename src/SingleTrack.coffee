@@ -87,6 +87,12 @@ module.exports = class SingleTrack extends Emitter
 
 		return
 
+	seek: (amount) ->
+
+		@seekTo @t + amount
+
+		return
+
 	seekTo: (t) ->
 
 		@t = t
