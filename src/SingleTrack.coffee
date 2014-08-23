@@ -17,6 +17,8 @@ module.exports = class SingleTrack extends Emitter
 
 		@_isPlaying = no
 
+		@_offset = 0.0
+
 	set: (source) ->
 
 		if @_el?
@@ -38,6 +40,12 @@ module.exports = class SingleTrack extends Emitter
 		@_el.addEventListener 'play', => do @_receivePlay
 
 		@_el
+
+	setOffset: (offset) ->
+
+		@_offset = +offset
+
+		return
 
 	_receiveCanPlayThrough: ->
 
@@ -81,11 +89,15 @@ module.exports = class SingleTrack extends Emitter
 
 		return unless @_isPlaying
 
-		@t = @_el.currentTime * 1000.0
+		@t = @_elementTimeToTime(@_el.currentTime)
 
 		@_emit 'tick', @t
 
 		return
+
+	_elementTimeToTime: (et) ->
+
+		(et * 1000.0) - @_offset
 
 	seekTo: (t) ->
 
@@ -93,11 +105,15 @@ module.exports = class SingleTrack extends Emitter
 
 		if @_isReady
 
-			@_el.currentTime = t / 1000.0
+			@_el.currentTime = @_timeToElementTime(t)
 
 		@_emit 'tick', @t
 
 		return
+
+	_timeToElementTime: (t) ->
+
+		(t + @_offset) / 1000.0
 
 	togglePlay: ->
 
