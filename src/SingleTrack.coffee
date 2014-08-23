@@ -45,8 +45,6 @@ module.exports = class SingleTrack extends Emitter
 
 		@_offset = +offset
 
-		return
-
 	_receiveCanPlayThrough: ->
 
 		return if @_isReady
