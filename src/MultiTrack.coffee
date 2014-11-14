@@ -1,6 +1,6 @@
 wn = require 'when'
-array = require 'utila/scripts/js/lib/array'
-Emitter = require 'utila/scripts/js/lib/Emitter'
+array = require 'utila/lib/array'
+Emitter = require 'utila/lib/Emitter'
 AudioTagPlayer = require './multiTrack/AudioTagPlayer'
 
 module.exports = class MultiTrack extends Emitter
