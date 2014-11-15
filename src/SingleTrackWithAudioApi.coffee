@@ -34,7 +34,7 @@ module.exports = class SingleTrackWithAudioApi extends Emitter
 
 		@_requestedDuration = 0.0
 
-		@_waitBeforePlay = 16.0
+		@_waitBeforePlay = 50
 
 		@_isReady = no
 
