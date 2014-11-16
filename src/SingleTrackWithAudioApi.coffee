@@ -24,7 +24,7 @@ module.exports = class SingleTrackWithAudioApi extends Emitter
 
 		@_currentSource = null
 
-		@t = 0.0
+		@_actualT = 0.0
 
 		@_lastWindowTime = 0.0
 
@@ -41,6 +41,12 @@ module.exports = class SingleTrackWithAudioApi extends Emitter
 		@_isPlaying = no
 
 		@_isSet = no
+
+		@_offset = 0.0
+
+	setOffset: (offset) ->
+
+		@_offset = +offset
 
 	set: (source) ->
 
@@ -108,17 +114,31 @@ module.exports = class SingleTrackWithAudioApi extends Emitter
 
 		@_isReady
 
+	_actualTToUserT: (actualT) ->
+
+		actualT + @_offset
+
+	_userTToActualT: (userT) ->
+
+		userT - @_offset
+
+	_setT: (actual) ->
+
+		@_actualT = actual
+
+		@t = @_actualTToUserT actual
+
 	tick: ->
 
 		return unless @_isPlaying
 
 		currentWindowTime = performance.now()
 
-		@t += currentWindowTime - @_lastWindowTime
+		@_setT @_actualT + currentWindowTime - @_lastWindowTime
 
 		@_lastWindowTime = currentWindowTime
 
-		if @t > @duration
+		if @_actualT > @duration
 
 			do @pause
 
@@ -162,6 +182,8 @@ module.exports = class SingleTrackWithAudioApi extends Emitter
 
 	seekTo: (t) ->
 
+		t = @_userTToActualT t
+
 		if @_isPlaying
 
 			wasPlaying = yes
@@ -172,7 +194,9 @@ module.exports = class SingleTrackWithAudioApi extends Emitter
 
 		if t < 0 then t = 0.0
 
-		@_emit 'tick', @t = t
+		@_setT t
+
+		@_emit 'tick', @t
 
 		if wasPlaying
 
@@ -186,11 +210,11 @@ module.exports = class SingleTrackWithAudioApi extends Emitter
 
 	_play: ->
 
-		return if @t > @duration
+		return if @_actualT > @duration
 
 		@_lastWindowTime = performance.now()
 
-		@t -= @_waitBeforePlay
+		@_actualT -= @_waitBeforePlay
 
 		do @_queue
 
@@ -200,7 +224,7 @@ module.exports = class SingleTrackWithAudioApi extends Emitter
 
 	_queue: ->
 
-		localT = @t
+		localT = @_actualT
 
 		@_currentSource = @context.createBufferSource()
 
