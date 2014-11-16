@@ -1,6 +1,6 @@
 {
   "name": "audio-driven-time-control",
-  "version": "0.1.0-beta.11",
+  "version": "0.1.0-beta.12",
   "description": "(work in progress)",
   "main": "",
   "scripts": {
@@ -17,7 +17,8 @@
     "url": "https://github.com/AriaMinaei/audio-driven-time-control/issues"
   },
   "dependencies": {
-    "when": "~2.7.1"
+    "when": "~2.7.1",
+    "utila": "~0.4.0",
   },
   "devDependencies": {
     "coffee-script": "~1.6.3",
